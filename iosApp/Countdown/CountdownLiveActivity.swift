@@ -26,32 +26,39 @@ struct CountdownLiveActivity: Widget {
         ActivityConfiguration(for: CountdownAttributes.self) { context in
             // Lock screen/banner UI goes here
             VStack() {
-                HStack {
-                    VStack (){
+                HStack(alignment: .top, spacing: 16) {
+                    VStack(alignment: .leading) {
                         Text(context.attributes.className)
-                            .font(.title2)
+                            .font(.body)
                             .foregroundStyle(.white)
                         
                         Text("Ends at: " + formatDateToHoursAndMinutes(date: context.attributes.endTime))
+                            .font(.caption)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    Spacer() // This will push the two VStacks apart
                     
-                    VStack (){
+                
+                    VStack(alignment: .trailing) {
                         Text("Time Left: ")
+                            .font(.caption)
+                        
                         Text(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: true, showsHours: true)
-                            .font(.title2)
+                            .font(.body)
                             .foregroundStyle(.white)
+                            .multilineTextAlignment(.trailing)
+                        
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
 
-                ProgressView(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: true, label: { Text("") }, currentValueLabel: { Text("") })
-                       .progressViewStyle(LinearProgressViewStyle())
-                       .frame(height: 20)
-                       .scaleEffect(x: 1, y: 1.5, anchor: .center)
+                ProgressView(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: false, label: { Text("") }, currentValueLabel: { Text("") })
+                    .progressViewStyle(LinearProgressViewStyle())
+                    .frame(height: 20)
+                    .scaleEffect(x: 1, y: 1.5, anchor: .center)
+
             }
+            .frame(maxWidth: .infinity)
             .padding()
             .activityBackgroundTint(.black.opacity(0.25))
 
@@ -60,21 +67,34 @@ struct CountdownLiveActivity: Widget {
                 // Expanded UI goes here.  Compose the expanded UI through
                 // various regions, like leading/trailing/center/bottom
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
+                    Text(context.attributes.className)
+                        .font(.body)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
+                    Text(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: true, showsHours: true)
+                        .font(.body)
+                        .multilineTextAlignment(.trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom")
-                    // more content
+                    ProgressView(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: false, label: { Text("") }, currentValueLabel: { Text("") })
+                        .progressViewStyle(LinearProgressViewStyle())
+                        .frame(height: 20)
+                        .scaleEffect(x: 1, y: 1.5, anchor: .center)
                 }
             } compactLeading: {
-                Text("L")
+                Text(context.attributes.className)
+                    .font(.caption)
+                    .padding(14)
             } compactTrailing: {
-                Text("T")
+                Text(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: true, showsHours: true)
+                    .font(.body)
+                    .multilineTextAlignment(.trailing)
+                    .padding(14)
             } minimal: {
-                Text("M")
+                ProgressView(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: false, label: { Text("") }, currentValueLabel: { Text("") })
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .frame(height: 20)
+                    .scaleEffect(x: 1, y: 1, anchor: .center)
             }
             .widgetURL(URL(string: "http://www.apple.com"))
             .keylineTint(Color.red)

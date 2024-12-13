@@ -65,7 +65,10 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
     val listState = rememberLazyListState()
 
     LaunchedEffect(className) {
-        startActivity()
+        if (className != "") {
+            startActivity()
+        }
+
     }
 
     // Create a coroutine to load in classes
