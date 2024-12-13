@@ -82,14 +82,22 @@ struct CountdownLiveActivity: Widget {
                         .scaleEffect(x: 1, y: 1.5, anchor: .center)
                 }
             } compactLeading: {
-                Text(context.attributes.className)
-                    .font(.caption)
-                    .padding(14)
+                VStack (alignment: .leading){
+                    Text(context.attributes.className)
+                        .font(.body)
+                    
+                    Text("Ends at: " + formatDateToHoursAndMinutes(date: context.attributes.endTime))
+                        .font(.caption)
+                }.padding(14)
             } compactTrailing: {
-                Text(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: true, showsHours: true)
-                    .font(.body)
-                    .multilineTextAlignment(.trailing)
-                    .padding(14)
+                VStack (alignment: .trailing){
+                    Text("Time Left:")
+                        .font(.caption)
+                    
+                    Text(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: true, showsHours: true)
+                        .font(.body)
+                        .multilineTextAlignment(.trailing)
+                }.padding(14)
             } minimal: {
                 ProgressView(timerInterval: context.attributes.startTime...context.attributes.endTime, countsDown: false, label: { Text("") }, currentValueLabel: { Text("") })
                     .progressViewStyle(CircularProgressViewStyle())
