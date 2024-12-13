@@ -83,3 +83,5 @@ fun createNotifications(schoolSchedule: List<ScheduleViewModel.Period>) {
         }
     }
 }
+
+expect fun startActivity()

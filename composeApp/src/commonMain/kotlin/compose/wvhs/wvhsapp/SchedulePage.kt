@@ -23,6 +23,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,9 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+var startTime: Long = 0
+var endTime: Long = 0
+var className by mutableStateOf("")
 
 // Main function for schedule screen
 @Composable
@@ -59,6 +63,10 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
     var selectedDayPage by mutableStateOf(studentSharedViewModel.currentBellScheduleType)
     val options = listOf("Mon/Fri", "Tue/Thu", "Wed")
     val listState = rememberLazyListState()
+
+    LaunchedEffect(className) {
+        startActivity()
+    }
 
     // Create a coroutine to load in classes
     scope.launch {
@@ -432,6 +440,9 @@ class ScheduleViewModel(classList: List<String>?, dayOfWeek: Int?) {
         for (period in schedule) {
             if (currentTime in period.start..period.end) { // Check if the current time is in the period
                 val timeLeft = period.end.toSecondOfDay() - currentTime.toSecondOfDay()
+                startTime = (period.start.toSecondOfDay()-currentTime.toSecondOfDay()).toLong()
+                endTime = timeLeft.toLong()
+                className = period.name
                 // Vibrate the phone when there's a minute or 1 second to go. Does not work when phone is off.
                 if (timeLeft == 60 or 1) {
                     vibrate("long")

@@ -43,3 +43,10 @@ private class IOSNotificationService: NotificationService {
 actual fun createNotificationService(): NotificationService {
     return IOSNotificationService()
 }
+
+
+lateinit var createLiveActivity: () -> Unit
+
+actual fun startActivity() {
+    createLiveActivity()
+}

@@ -36,10 +36,12 @@ import compose.wvhs.wvhsapp.ui.theme.AppTheme
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+
 // Main app
 @Composable
 @Preview
 fun App() {
+
     AppTheme {
     // Create initial variables
     val studentSharedViewModel: StudentSharedViewModel = viewModel {StudentSharedViewModel()}

@@ -95,3 +95,7 @@ class NotificationReceiver : BroadcastReceiver() {
 actual fun createNotificationService(): NotificationService{
     return AndroidNotificationService(ContextHolder.contextProvider.getApplicationContext() as Context)
 }
+
+actual fun startActivity() {
+
+}
