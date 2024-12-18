@@ -17,13 +17,7 @@ import kotlinx.datetime.toLocalDateTime
 enum class Days (val value: Int){
     MondayFriday(0),
     TuesdayThursday(1),
-    Wednesday(2),
-    ExtendedHomeroom(3),
-    RallySchedule(4),
-    FirstDayOfTerm(5),
-    StateTesting(6),
-    MinimumDay(7),
-    Finals(8);
+    Wednesday(2)
 }
 
 // Create shared view model
@@ -59,8 +53,6 @@ class StudentSharedViewModel : ViewModel() {
             "MonFri Bell" -> Days.MondayFriday.value
             "Tues-Thurs Bell" -> Days.TuesdayThursday.value
             "Wed Bell" -> Days.Wednesday.value
-            "Extended Homeroom" -> Days.ExtendedHomeroom.value
-            "Rally Bell" -> Days.RallySchedule.value
             else -> {
                 when (Clock.System.now().toLocalDateTime(timeZone = TimeZone.currentSystemDefault()).dayOfWeek.isoDayNumber) {
                     1 -> Days.MondayFriday.value
@@ -124,30 +116,6 @@ fun getSchedule(classList: List<String>?, dayOfWeek: Int?): List<Period> {
             Period("Wolverine Time", LocalTime(13, 49), LocalTime(14, 20)),
             Period("Passing", LocalTime(14, 20), LocalTime(14, 26)),
             Period(classList?.getOrNull(3) ?: "Class 4", LocalTime(14, 26), LocalTime(15, 35))
-        )
-        Days.ExtendedHomeroom.value -> listOf(
-            Period(classList?.getOrNull(0) ?: "Class 1", LocalTime(8, 35), LocalTime(9, 54)),
-            Period("Passing", LocalTime(9, 54), LocalTime(10, 0)),
-            Period(classList?.getOrNull(4) ?: "Homeroom", LocalTime(10, 0), LocalTime(10, 45)),
-            Period("Passing", LocalTime(10, 45), LocalTime(10, 51)),
-            Period(classList?.getOrNull(1) ?: "Class 2", LocalTime(10, 51), LocalTime(12, 10)),
-            Period("Lunch", LocalTime(12, 10), LocalTime(12, 45)),
-            Period("Passing", LocalTime(12, 45), LocalTime(12, 51)),
-            Period(classList?.getOrNull(2) ?: "Class 3", LocalTime(12, 51), LocalTime(14, 10)),
-            Period("Passing", LocalTime(14, 10), LocalTime(14, 16)),
-            Period(classList?.getOrNull(3) ?: "Class 4", LocalTime(14, 16), LocalTime(15, 35))
-        )
-        Days.RallySchedule.value -> listOf(
-            Period(classList?.getOrNull(0) ?: "Class 1", LocalTime(8, 35), LocalTime(9, 56)),
-            Period("Passing", LocalTime(9, 56), LocalTime(10, 2)),
-            Period(classList?.getOrNull(1) ?: "Class 2", LocalTime(10, 2), LocalTime(11, 23)),
-            Period("Passing to Rally", LocalTime(11, 23), LocalTime(11, 33)),
-            Period("Rally", LocalTime(11, 33), LocalTime(12, 6)),
-            Period("Lunch", LocalTime(12, 6), LocalTime(12, 41)),
-            Period("Passing", LocalTime(12, 41), LocalTime(12, 47)),
-            Period(classList?.getOrNull(2) ?: "Class 3", LocalTime(12, 47), LocalTime(14, 8)),
-            Period("Passing", LocalTime(14, 8), LocalTime(14, 14)),
-            Period(classList?.getOrNull(3) ?: "Class 4", LocalTime(14, 14), LocalTime(15, 35))
         )
         else -> listOf()
     }

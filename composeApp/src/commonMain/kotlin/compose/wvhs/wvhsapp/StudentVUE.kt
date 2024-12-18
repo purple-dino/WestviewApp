@@ -122,12 +122,30 @@ class StudentVUE(
 
     suspend fun requestClassListAndBellSchedule(studentSharedViewModel: StudentSharedViewModel): Classes {
         val classes = requestStudentVUEData("StudentClassList")
+        println(classes.substring(5000))
         val classList = Regex("CourseTitle=\"(.*?)\"").findAll(classes)
             .map { it.groupValues[1] }
             .toList()
+        val periodList = Regex("ClassListing Period=\"(.*?)\"").findAll(classes)
+            .map { it.groupValues[1] }
+            .toList()
+        println(periodList)
+
+        val newClassList: MutableMap<Int, String> = mutableMapOf()
+
+        for (period in periodList) {
+            if (period == "1" || period == "2" || period == "3" || period == "4") {
+                newClassList[period.toInt()] = classList[periodList.indexOf(period)]
+            }
+        }
+
         val currentBellSchedule = Regex("BellSchedName=\"(.*?)\"").find(classes)?.groups?.get(1)?.value
         studentSharedViewModel.changeBellSchedule(currentBellSchedule)
-        return Classes(classList)
+        if (currentBellSchedule == null) {
+
+        }
+
+        return Classes(newClassList.values.toList())
     }
 
     suspend fun requestGradingPeriods(studentSharedViewModel: StudentSharedViewModel) {

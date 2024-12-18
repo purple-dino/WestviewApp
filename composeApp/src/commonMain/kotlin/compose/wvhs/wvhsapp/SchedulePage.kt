@@ -162,12 +162,6 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
                             ) {
                                 Text(
                                     when (studentSharedViewModel.currentBellScheduleType) {
-                                        Days.ExtendedHomeroom.value -> "Extended Homeroom"
-                                        Days.RallySchedule.value -> "Rally Schedule"
-                                        Days.FirstDayOfTerm.value -> "First Day of School"
-                                        Days.StateTesting.value -> "State Testing"
-                                        Days.MinimumDay.value -> "Minimum Day"
-                                        Days.Finals.value -> "Finals"
                                         else -> "Today"
                                     }
                                 )
