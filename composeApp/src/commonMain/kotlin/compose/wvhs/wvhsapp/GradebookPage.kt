@@ -73,16 +73,6 @@ fun GradebookPage(navController: NavController, studentSharedViewModel: StudentS
 
     // Get the gradebook and grading periods in a coroutine
     LaunchedEffect(Unit) {
-        // Get the gradebook
-        if (studentSharedViewModel.gradebook == null) {
-            try {
-                studentSharedViewModel.student?.requestOrUpdateGradebook(studentSharedViewModel = studentSharedViewModel)
-                studentSharedViewModel.student?.requestAttendance(studentSharedViewModel = studentSharedViewModel)
-            } finally {
-
-            }
-        }
-
         // Get the grading periods
         if (studentSharedViewModel.gradingPeriods == null) {
             try {
@@ -91,6 +81,17 @@ fun GradebookPage(navController: NavController, studentSharedViewModel: StudentS
 
             }
         }
+
+        // Get the gradebook
+        if (studentSharedViewModel.gradebook == null) {
+            try {
+                studentSharedViewModel.student?.requestOrUpdateGradebook(studentSharedViewModel.selectedGradingPeriod, studentSharedViewModel = studentSharedViewModel)
+                studentSharedViewModel.student?.requestAttendance(studentSharedViewModel.selectedGradingPeriod, studentSharedViewModel = studentSharedViewModel)
+            } finally {
+
+            }
+        }
+
         // Set isLoading to false after initial loading finishes
         isLoading = false
     }

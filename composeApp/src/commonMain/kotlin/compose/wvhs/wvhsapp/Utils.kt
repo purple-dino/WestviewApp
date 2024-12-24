@@ -30,6 +30,11 @@ class StudentSharedViewModel : ViewModel() {
     var student: StudentVUE? by mutableStateOf(null)
     var currentBellScheduleType: Int? by mutableStateOf(null)
     var attendance: Attendance? by mutableStateOf(null)
+    var todaysBellSchedule: List<Period>? by mutableStateOf(null)
+
+    fun changeTimesOfBellSchedule(newSchedule: List<Period>) {
+        todaysBellSchedule = newSchedule
+    }
     fun changeGradebook(newGradebook: Gradebook) {
         gradebook = newGradebook
     }
@@ -80,7 +85,7 @@ class StudentSharedViewModel : ViewModel() {
 }
 
 // Function to get other days of the week
-fun getSchedule(classList: List<String>?, dayOfWeek: Int?): List<Period> {
+fun getSchedule(classList: List<String>?, dayOfWeek: Int?, studentSharedViewModel: StudentSharedViewModel): List<Period> {
     return when (dayOfWeek) {
         Days.MondayFriday.value -> listOf(
             Period(classList?.getOrNull(0) ?: "Class 1", LocalTime(8, 35), LocalTime(10, 1)),
@@ -117,7 +122,7 @@ fun getSchedule(classList: List<String>?, dayOfWeek: Int?): List<Period> {
             Period("Passing", LocalTime(14, 20), LocalTime(14, 26)),
             Period(classList?.getOrNull(3) ?: "Class 4", LocalTime(14, 26), LocalTime(15, 35))
         )
-        else -> listOf()
+        else -> studentSharedViewModel.todaysBellSchedule ?: listOf()
     }
 }
 

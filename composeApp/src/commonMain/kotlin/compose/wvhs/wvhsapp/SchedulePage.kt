@@ -112,7 +112,8 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
         val classList = studentSharedViewModel.classes?.classes ?: emptyList()
         val viewModel = ScheduleViewModel(
             classList,
-            studentSharedViewModel.currentBellScheduleType
+            studentSharedViewModel.currentBellScheduleType,
+            studentSharedViewModel = studentSharedViewModel
         ) // Pass the class list to the ViewModel
 
         Scaffold(
@@ -241,7 +242,8 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
                     items(
                         getSchedule(
                             classList = classList,
-                            dayOfWeek = selectedDayPage
+                            dayOfWeek = selectedDayPage,
+                            studentSharedViewModel = studentSharedViewModel
                         )
                     ) { period ->
                         Box(
@@ -372,7 +374,7 @@ fun TimerPageTopBar(viewModel: ScheduleViewModel) {
 
 
 // the schedule time remaining
-class ScheduleViewModel(classList: List<String>?, dayOfWeek: Int?) {
+class ScheduleViewModel(classList: List<String>?, dayOfWeek: Int?, studentSharedViewModel: StudentSharedViewModel) {
     // Create initial variables
     data class Period(val name: String, val start: LocalTime, val end: LocalTime)
 
@@ -381,7 +383,7 @@ class ScheduleViewModel(classList: List<String>?, dayOfWeek: Int?) {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     // Create the schedule
-    val schoolSchedule = getSchedule(classList, dayOfWeek = dayOfWeek)
+    val schoolSchedule = getSchedule(classList, dayOfWeek = dayOfWeek, studentSharedViewModel = studentSharedViewModel)
 
     var currentPeriod by mutableStateOf(-1)
 

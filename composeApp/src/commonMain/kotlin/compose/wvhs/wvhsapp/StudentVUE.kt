@@ -13,6 +13,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 
 
 // Create all of the base data classes
@@ -75,9 +78,9 @@ class StudentVUE(
         install(HttpCookies)
     }
 
-    suspend fun requestAttendance(studentSharedViewModel: StudentSharedViewModel) {
+    suspend fun requestAttendance(gradingPeriod: Int? = null, studentSharedViewModel: StudentSharedViewModel) {
         val totalAttendanceInArrayList = ArrayList<Absence>()
-        val attendanceList = withContext(Dispatchers.IO) { requestStudentVUEData("Attendance") }
+        val attendanceList = withContext(Dispatchers.IO) { requestStudentVUEData("Attendance", gradingPeriod) }
 
         // Parse the data
         val mainData = Ksoup.parse(html = attendanceList, parser = Parser.xmlParser()).select("Attendance").select("Absences").select("Absence").toList()
@@ -122,14 +125,12 @@ class StudentVUE(
 
     suspend fun requestClassListAndBellSchedule(studentSharedViewModel: StudentSharedViewModel): Classes {
         val classes = requestStudentVUEData("StudentClassList")
-        println(classes.substring(5000))
         val classList = Regex("CourseTitle=\"(.*?)\"").findAll(classes)
             .map { it.groupValues[1] }
             .toList()
         val periodList = Regex("ClassListing Period=\"(.*?)\"").findAll(classes)
             .map { it.groupValues[1] }
             .toList()
-        println(periodList)
 
         val newClassList: MutableMap<Int, String> = mutableMapOf()
 
@@ -141,11 +142,41 @@ class StudentVUE(
 
         val currentBellSchedule = Regex("BellSchedName=\"(.*?)\"").find(classes)?.groups?.get(1)?.value
         studentSharedViewModel.changeBellSchedule(currentBellSchedule)
-        if (currentBellSchedule == null) {
 
-        }
+//        if (currentBellSchedule != "MonFriBell" && currentBellSchedule != "Tues-Thurs Bell" && currentBellSchedule != "Wed Bell") {
+////            createBellSchedule(classes)
+//        }
+//        createBellSchedule(classes)
+
 
         return Classes(newClassList.values.toList())
+    }
+
+    @OptIn(FormatStringsInDatetimeFormats::class)
+    private fun createBellSchedule(classes: String) {
+        println(classes)
+        val endDates = Regex("EndDate=\"(.*?)\"").findAll(classes)
+            .map { it.groupValues[1] }
+            .toList()
+        val startDates = Regex("StartDate=\"(.*?)\"").findAll(classes)
+            .map { it.groupValues[1] }
+            .toList()
+
+        println(endDates)
+        for (endDate in endDates) {
+            var newEndDate: LocalDateTime? = null
+            if (endDate.length == 21) {
+                newEndDate = if (endDate.substring(20, 21) == "AM") {
+                    LocalDateTime.parse(endDate.dropLast(3), format = LocalDateTime.Format { byUnicodePattern("MM/dd/yyyy H:mm:ss") })
+                } else {
+                    LocalDateTime.parse(endDate.dropLast(3), format = LocalDateTime.Format { byUnicodePattern("MM/dd/yyyy H:mm:ss") })
+                }
+            } else if (endDate.length == 22){
+                newEndDate = LocalDateTime.parse(endDate.dropLast(3), format = LocalDateTime.Format { byUnicodePattern("MM/dd/yyyy HH:mm:ss") })
+            }
+            println(newEndDate)
+        }
+        println(startDates)
     }
 
     suspend fun requestGradingPeriods(studentSharedViewModel: StudentSharedViewModel) {
@@ -158,11 +189,13 @@ class StudentVUE(
             if (gradingPeriods.size-1 >=0) {
                 gradingPeriods = gradingPeriods.subList(
                     0,
-                    gradingPeriods.indexOf(gradingPeriods[gradingPeriods.size - 1]) + 1
+                    gradingPeriods.size-1
                 )
 
                 gradingPeriods = gradingPeriods.map { it.replace("\\s{2,}".toRegex(), " ") }
-                studentSharedViewModel.changeSelectedGradingPeriod(gradingPeriods.size-1)
+                studentSharedViewModel.changeSelectedGradingPeriod(
+                    gradingPeriods.size-1
+                )
             } else {
                 gradingPeriods = emptyList()
             }
