@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Utils
 
 import android.content.Context
 import android.os.VibrationEffect

@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Utils
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import compose.wvhs.wvhsapp.R
 
 private fun createNotificationChannel(context: Context, channelId: String) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -92,7 +93,7 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 }
 
-actual fun createNotificationService(): NotificationService{
+actual fun createNotificationService(): NotificationService {
     return AndroidNotificationService(ContextHolder.contextProvider.getApplicationContext() as Context)
 }
 

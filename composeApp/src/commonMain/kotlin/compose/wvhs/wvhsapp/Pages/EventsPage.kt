@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Pages
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import compose.wvhs.wvhsapp.DisplayWebPage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

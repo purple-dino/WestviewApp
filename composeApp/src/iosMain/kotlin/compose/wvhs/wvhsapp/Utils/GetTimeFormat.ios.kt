@@ -1,11 +1,7 @@
-package compose.wvhs.wvhsapp
-import platform.Foundation.NSDate
+package compose.wvhs.wvhsapp.Utils
 import platform.Foundation.NSDateFormatter
-import platform.Foundation.NSDateFormatterStyle
 import platform.Foundation.NSLocale
-import platform.Foundation.NSTimeZone
 import platform.Foundation.currentLocale
-import platform.Foundation.defaultTimeZone
 
 actual fun is24HourFormat(): Boolean {
     val dateFormatter = NSDateFormatter()

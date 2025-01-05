@@ -2,69 +2,31 @@ package compose.wvhs.wvhsapp
 
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.parser.Parser
+import compose.wvhs.wvhsapp.DataClasses.Absence
+import compose.wvhs.wvhsapp.DataClasses.Assignment
+import compose.wvhs.wvhsapp.DataClasses.Attendance
+import compose.wvhs.wvhsapp.DataClasses.ClassInfo
+import compose.wvhs.wvhsapp.DataClasses.Classes
+import compose.wvhs.wvhsapp.DataClasses.DecodedEvent
+import compose.wvhs.wvhsapp.DataClasses.GradeBreakdown
+import compose.wvhs.wvhsapp.DataClasses.Gradebook
+import compose.wvhs.wvhsapp.Utils.callSoapService
+import compose.wvhs.wvhsapp.Utils.parseCalendar
+import compose.wvhs.wvhsapp.Utils.removeXMLSequences
+import compose.wvhs.wvhsapp.ViewModels.ScheduleViewModel
+import compose.wvhs.wvhsapp.ViewModels.StudentSharedViewModel
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.plugins.cookies.HttpCookies
-import io.ktor.http.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format.FormatStringsInDatetimeFormats
-import kotlinx.datetime.format.byUnicodePattern
-
-
-// Create all of the base data classes
-data class Assignment(
-    val title: String?,
-    val date: String?,
-    val type: String?,
-    val score: String?,
-    val scoreType: String?,
-    val points: String?,
-    val notes: String?
-)
-
-data class GradeBreakdown(
-    val type: String?,
-    val weight: String?,
-    val points: String?,
-    val pointsPossible: String?,
-    val weightedPercentage: String?
-)
-
-data class ClassInfo(
-    val period: String?,
-    val room: String?,
-    val teacher: String?,
-    val teacherEmail: String?,
-    val overallLetterGrade: String?,
-    val overallPercentageGrade: String?,
-    val assignments: List<Assignment>,
-    val gradeBreakdown: List<GradeBreakdown>
-)
-
-data class Gradebook(
-    val classes: Map<String?, ClassInfo>
-)
-
-data class Classes(
-    val classes: List<String>
-)
-
-data class Absence(
-    val periodsAffected: List<String>?,
-    val type: List<String>?,
-    val date: LocalDate?
-)
-
-data class Attendance(
-    val absences: List<Absence>
-)
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 // Create the studentvue class
 class StudentVUE(
@@ -72,7 +34,6 @@ class StudentVUE(
     private val password: String,
     private val districtDomain: String
 ) {
-
     // Create a client to access the api
     private val client = HttpClient {
         install(HttpCookies)
@@ -141,42 +102,44 @@ class StudentVUE(
         }
 
         val currentBellSchedule = Regex("BellSchedName=\"(.*?)\"").find(classes)?.groups?.get(1)?.value
-        studentSharedViewModel.changeBellSchedule(currentBellSchedule)
+        studentSharedViewModel.changeBellScheduleType(currentBellSchedule)
 
-//        if (currentBellSchedule != "MonFriBell" && currentBellSchedule != "Tues-Thurs Bell" && currentBellSchedule != "Wed Bell") {
-////            createBellSchedule(classes)
-//        }
-//        createBellSchedule(classes)
-
+        if (currentBellSchedule != "MonFriBell" && currentBellSchedule != "Tues-Thurs Bell" && currentBellSchedule != "Wed Bell") {
+            studentSharedViewModel.changeBellSchedule(createBellScheduleFromGoogleCalendar(newClassList.values.toList(), studentSharedViewModel = studentSharedViewModel))
+        } else {
+            studentSharedViewModel.changeBellSchedule(getSchedule(classList=newClassList.values.toList(), dayOfWeek = listOf("MonFriBell", "Tues-Thurs Bell", "Wed Bell").indexOf(currentBellSchedule), studentSharedViewModel = studentSharedViewModel))
+        }
 
         return Classes(newClassList.values.toList())
     }
 
-    @OptIn(FormatStringsInDatetimeFormats::class)
-    private fun createBellSchedule(classes: String) {
-        println(classes)
-        val endDates = Regex("EndDate=\"(.*?)\"").findAll(classes)
-            .map { it.groupValues[1] }
-            .toList()
-        val startDates = Regex("StartDate=\"(.*?)\"").findAll(classes)
-            .map { it.groupValues[1] }
-            .toList()
-
-        println(endDates)
-        for (endDate in endDates) {
-            var newEndDate: LocalDateTime? = null
-            if (endDate.length == 21) {
-                newEndDate = if (endDate.substring(20, 21) == "AM") {
-                    LocalDateTime.parse(endDate.dropLast(3), format = LocalDateTime.Format { byUnicodePattern("MM/dd/yyyy H:mm:ss") })
-                } else {
-                    LocalDateTime.parse(endDate.dropLast(3), format = LocalDateTime.Format { byUnicodePattern("MM/dd/yyyy H:mm:ss") })
+    private suspend fun createBellScheduleFromGoogleCalendar(classlist: List<String>, studentSharedViewModel: StudentSharedViewModel): List<ScheduleViewModel.Period>? {
+        val client = HttpClient()
+        val dateToGet = LocalDate.fromEpochDays(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toEpochDays()).toString() + "T00:00:00-07:00"
+        val bellSchedule = (parseCalendar(withContext(Dispatchers.IO) {client.get(urlString = "https://www.googleapis.com/calendar/v3/calendars/5c71a8e801b662f3862e4283a18c0a5a052121b5fcbff169539c1aaa8b5a8684@group.calendar.google.com/events?key=AIzaSyDeFW5b_wnH-uDLG-RjPsTX6P2iOZHwGBo&timeMin=${dateToGet}&maxResults=${1}&singleEvents=True&orderBy=startTime").bodyAsText() }))
+        if (bellSchedule.events != emptyList<DecodedEvent>()) {
+            val schedule = bellSchedule.events[0].description
+            if (schedule != null) {
+                val finalSchedule: MutableList<ScheduleViewModel.Period> = mutableListOf()
+                val newSchedule = Ksoup.parse(schedule).select("tr").toList().drop(1)
+                for (period in newSchedule) {
+                    val parsedPeriod = period.select("td").toList()
+                    val startTime = LocalTime(parsedPeriod[1].text().split(":")[0].toInt(), parsedPeriod[1].text().split(":")[1].toInt())
+                    val endTime = LocalTime(parsedPeriod[2].text().split(":")[0].toInt(), parsedPeriod[2].text().split(":")[1].toInt())
+                    if (parsedPeriod[0].text() == "1" || parsedPeriod[0].text() == "2" || parsedPeriod[0].text() == "3" || parsedPeriod[0].text() == "4") {
+                        finalSchedule.add(ScheduleViewModel.Period(name = classlist[parsedPeriod[0].text().toInt()-1], start = startTime, end = endTime))
+                    } else {
+                        finalSchedule.add(ScheduleViewModel.Period(name = parsedPeriod[0].text(), start = startTime, end = endTime))
+                    }
                 }
-            } else if (endDate.length == 22){
-                newEndDate = LocalDateTime.parse(endDate.dropLast(3), format = LocalDateTime.Format { byUnicodePattern("MM/dd/yyyy HH:mm:ss") })
+                studentSharedViewModel.changeBellScheduleType(bellSchedule.events[0].summary)
+                return finalSchedule
+            } else {
+                return null
             }
-            println(newEndDate)
+        } else {
+            return null
         }
-        println(startDates)
     }
 
     suspend fun requestGradingPeriods(studentSharedViewModel: StudentSharedViewModel) {
@@ -199,11 +162,8 @@ class StudentVUE(
             } else {
                 gradingPeriods = emptyList()
             }
-
-
             studentSharedViewModel.changeGradingPeriods(gradingPeriods)
         }
-
     }
 
 
@@ -341,7 +301,7 @@ class StudentVUE(
             </soap:Envelope>
         """.trimIndent()
         val response: String = try{
-            removeXMLSequences(callSoapService(requestData))
+            removeXMLSequences(callSoapService(requestData, districtDomain, client))
         } catch (e: Exception){
             ""
         }
@@ -367,7 +327,7 @@ class StudentVUE(
             </soap:Envelope>
         """.trimIndent()
 
-        val response = callSoapService(requestData)
+        val response = callSoapService(requestData, districtDomain, client)
 
         return if (response.contains("The user name or password is incorrect.") || response.contains("Invalid user id or password")) {
             ("Login Failed")
@@ -376,33 +336,5 @@ class StudentVUE(
         } else {
             ("Something went wrong.")
         }
-    }
-
-    // Calls the Soap service
-    private suspend fun callSoapService(requestData: String): String {
-        val reqUrl = "https://$districtDomain/Service/PXPCommunication.asmx?WSDL"
-
-        return runBlocking {
-            try {
-                val response: HttpResponse = client.post(reqUrl) {
-                    contentType(ContentType.Text.Xml)
-                    setBody(requestData)
-                }
-                response.body<String>()
-            } catch (e: Exception) {
-                ""
-            }
-        }
-    }
-
-    // Removes xml sequences
-    private fun removeXMLSequences(data: String): String {
-        val startIndex = data.indexOf("<ProcessWebServiceRequestResult>") + 32
-        val endIndex = data.indexOf("</ProcessWebServiceRequestResult>")
-        return data.substring(startIndex, endIndex)
-            .replace(Regex("&amp;amp;amp;|&amp;amp;|&amp;"), "&") // Replace ampersand with &
-            .replace("&gt;", ">") // Greater than
-            .replace("&lt;", "<") // Less than
-            .replace(Regex("""(\r\n)|\n|"""), "") // Remove newlines
     }
 }

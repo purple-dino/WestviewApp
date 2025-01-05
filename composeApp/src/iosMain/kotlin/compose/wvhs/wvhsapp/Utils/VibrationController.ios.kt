@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Utils
 
 import kotlinx.coroutines.delay
 import platform.AudioToolbox.kSystemSoundID_Vibrate

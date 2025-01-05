@@ -1,9 +1,7 @@
 package compose.wvhs.wvhsapp
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
+import compose.wvhs.wvhsapp.Pages.App
 
 
 fun MainViewController() = ComposeUIViewController {

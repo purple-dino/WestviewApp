@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Pages
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -37,18 +37,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import kotlinx.coroutines.CoroutineScope
+import compose.wvhs.wvhsapp.Utils.format24htoAmPm
+import compose.wvhs.wvhsapp.ViewModels.ScheduleViewModel
+import compose.wvhs.wvhsapp.ViewModels.StudentSharedViewModel
+import compose.wvhs.wvhsapp.getSchedule
+import compose.wvhs.wvhsapp.Utils.startActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 var startTime: Long = 0
 var endTime: Long = 0
@@ -63,6 +60,7 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
     var selectedDayPage by mutableStateOf(studentSharedViewModel.currentBellScheduleType)
     val options = listOf("Mon/Fri", "Tue/Thu", "Wed")
     val listState = rememberLazyListState()
+    val listOfDays = listOf("MonFriBell", "Tues-Thurs Bell", "Wed Bell")
 
     LaunchedEffect(className) {
         if (className != "") {
@@ -111,8 +109,6 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
         // Ensure classes are not null before passing to TimerScreenFunc
         val classList = studentSharedViewModel.classes?.classes ?: emptyList()
         val viewModel = ScheduleViewModel(
-            classList,
-            studentSharedViewModel.currentBellScheduleType,
             studentSharedViewModel = studentSharedViewModel
         ) // Pass the class list to the ViewModel
 
@@ -135,21 +131,21 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
                                     count = options.size
                                 ),
                                 onClick = {
-                                    selectedDayPage = if (selectedDayPage != index) {
-                                        index
+                                    selectedDayPage = if (listOfDays.indexOf(selectedDayPage) != index) {
+                                        listOfDays[index]
                                     } else {
                                         null
                                     }
                                 },
-                                selected = index == selectedDayPage
+                                selected = index == listOfDays.indexOf(selectedDayPage)
                             ) {
                                 Text(label)
                             }
                         }
                     }
-                    if (studentSharedViewModel.currentBellScheduleType != Days.MondayFriday.value
-                        && studentSharedViewModel.currentBellScheduleType != Days.TuesdayThursday.value
-                        && studentSharedViewModel.currentBellScheduleType != Days.Wednesday.value
+                    if (studentSharedViewModel.currentBellScheduleType != listOfDays[0]
+                        && studentSharedViewModel.currentBellScheduleType != listOfDays[1]
+                        && studentSharedViewModel.currentBellScheduleType != listOfDays[2]
                         && studentSharedViewModel.currentBellScheduleType != null
                     ) {
                         SingleChoiceSegmentedButtonRow(
@@ -158,12 +154,12 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
                         ) {
                             SegmentedButton(
                                 shape = RoundedCornerShape(30.dp),
-                                onClick = { selectedDayPage = 3 },
+                                onClick = { selectedDayPage = studentSharedViewModel.currentBellScheduleType },
                                 selected = studentSharedViewModel.currentBellScheduleType == selectedDayPage
                             ) {
                                 Text(
                                     when (studentSharedViewModel.currentBellScheduleType) {
-                                        else -> "Today"
+                                        else -> studentSharedViewModel.currentBellScheduleType?:"Today"
                                     }
                                 )
                             }
@@ -240,11 +236,7 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
                 // Non-current days of week
                 else if (selectedDayPage != studentSharedViewModel.currentBellScheduleType && selectedDayPage != null){
                     items(
-                        getSchedule(
-                            classList = classList,
-                            dayOfWeek = selectedDayPage,
-                            studentSharedViewModel = studentSharedViewModel
-                        )
+                        getSchedule(classList = classList, dayOfWeek = listOfDays.indexOf(selectedDayPage), studentSharedViewModel = studentSharedViewModel)
                     ) { period ->
                         Box(
                             modifier = Modifier
@@ -294,7 +286,7 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Text(
-                                    text = "Log in to view schedule",
+                                    text = "Log in to view schedule and accurate bell schedule",
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -329,18 +321,6 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
     }
 }
 
-// Function to format time to 24 hour or AM/PM
-fun format24htoAmPm(localTime: LocalTime, addAmPm: Boolean? = false): String {
-    return if (is24HourFormat()) {
-        localTime.toString()
-    } else {
-        val hour = if (localTime.hour > 12) localTime.hour - 12 else localTime.hour
-        val formattedMinute = localTime.minute.toString().padStart(2, '0')
-
-        "$hour:$formattedMinute" + if (localTime.hour>12 && addAmPm == true) " PM" else if (addAmPm == true) " AM" else ""
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -370,109 +350,4 @@ fun TimerPageTopBar(viewModel: ScheduleViewModel) {
             )
         }
     })
-}
-
-
-// the schedule time remaining
-class ScheduleViewModel(classList: List<String>?, dayOfWeek: Int?, studentSharedViewModel: StudentSharedViewModel) {
-    // Create initial variables
-    data class Period(val name: String, val start: LocalTime, val end: LocalTime)
-
-    private val _remainingTime = MutableStateFlow("")
-    val remainingTime = _remainingTime.asStateFlow()
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-
-    // Create the schedule
-    val schoolSchedule = getSchedule(classList, dayOfWeek = dayOfWeek, studentSharedViewModel = studentSharedViewModel)
-
-    var currentPeriod by mutableStateOf(-1)
-
-    // Init function
-    init {
-        // Start the actual timer
-        startUpdating()
-
-        // Create the notifications
-        if (schoolSchedule.isNotEmpty()) {
-            createNotifications(schoolSchedule)
-        }
-    }
-
-    // Function to start the timer
-    private fun startUpdating() {
-        // Starts the coroutine for the updating
-        coroutineScope.launch {
-            while (true) {
-                _remainingTime.value = getRemainingTime(schoolSchedule)
-                delay(1000) // Update every second
-            }
-        }
-    }
-
-    // Function to get the remaining time of the period, automatically finds the correct period
-    private suspend fun getRemainingTime(schedule: List<Period>): String {
-        // Create the initial variables
-        if (schedule.isEmpty()) {
-            return "There's no school today!"
-        }
-
-        val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
-        val schoolStartTime = schedule[0].start
-        val schoolEndTime = LocalTime(15, 35)
-
-        // Check if school is over
-        if (currentTime > schoolEndTime) {
-            return "School's over!"
-        }
-
-        // Check if school hasn't started yet
-        if (currentTime < schoolStartTime) {
-            val timeUntilStart = schoolStartTime.toSecondOfDay() - currentTime.toSecondOfDay()
-            // Vibrate the phone when there are 5 minutes and 1 second left. Does not work when phone is off.
-            if (timeUntilStart == 300 or 1) {
-                vibrate("long")
-            }
-            return formatTimeDuration(timeUntilStart) + " until school starts"
-        }
-
-        // Determine the current period
-        for (period in schedule) {
-            if (currentTime in period.start..period.end) { // Check if the current time is in the period
-                val timeLeft = period.end.toSecondOfDay() - currentTime.toSecondOfDay()
-                startTime = (period.start.toSecondOfDay()-currentTime.toSecondOfDay()).toLong()
-                endTime = timeLeft.toLong()
-                className = period.name
-                // Vibrate the phone when there's a minute or 1 second to go. Does not work when phone is off.
-                if (timeLeft == 60 or 1) {
-                    vibrate("long")
-                }
-                currentPeriod = schedule.indexOf(period)
-                return formatTimeDuration(timeLeft) + " left in ${period.name}"
-            }
-        }
-
-        // If no period is active, return a default message
-        return "No active period"
-    }
-
-    // Format the time. Take in a duration in seconds and output a time in "HH:mm:ss" or "mm:ss"
-    private fun formatTimeDuration(seconds: Int): String {
-        var hours = (seconds / 3600).toString()
-        var minutes = ((seconds % 3600) / 60).toString()
-        var remainingSeconds = (seconds % 60).toString()
-        if (hours.length == 1) {
-            hours = "0$hours"
-        }
-        if (minutes.length == 1) {
-            minutes = "0$minutes"
-        }
-        if (remainingSeconds.length == 1) {
-            remainingSeconds = "0$remainingSeconds"
-        }
-        return if (hours == "00") {
-            "$minutes:$remainingSeconds"
-        } else {
-            "$hours:$minutes:$remainingSeconds"
-        }
-    }
 }

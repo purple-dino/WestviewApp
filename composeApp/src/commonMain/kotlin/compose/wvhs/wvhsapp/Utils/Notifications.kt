@@ -1,5 +1,6 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Utils
 
+import compose.wvhs.wvhsapp.ViewModels.ScheduleViewModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

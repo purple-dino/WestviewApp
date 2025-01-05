@@ -19,6 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import compose.wvhs.wvhsapp.Pages.App
+import compose.wvhs.wvhsapp.Utils.AndroidContextProvider
+import compose.wvhs.wvhsapp.Utils.ContextHolder
+import compose.wvhs.wvhsapp.Utils.initializeContext
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("InlinedApi")

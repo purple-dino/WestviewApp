@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Utils
 
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionSound

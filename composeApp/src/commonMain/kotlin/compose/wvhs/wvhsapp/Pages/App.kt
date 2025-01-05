@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Pages
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -30,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import compose.wvhs.wvhsapp.ViewModels.StudentSharedViewModel
 import compose.wvhs.wvhsapp.ui.theme.AppTheme
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -39,10 +40,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App() {
-
     AppTheme {
     // Create initial variables
-    val studentSharedViewModel: StudentSharedViewModel = viewModel {StudentSharedViewModel()}
+    val studentSharedViewModel: StudentSharedViewModel = viewModel { StudentSharedViewModel() }
     var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
     val navController = rememberNavController()
     var showBottomBar by remember { mutableStateOf(false) }

@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Pages
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import compose.wvhs.wvhsapp.ViewModels.StudentSharedViewModel
+import compose.wvhs.wvhsapp.Utils.createNotificationService
 
 @Composable
 fun SettingsScreenFunc(studentSharedViewModel: StudentSharedViewModel, navController: NavController){

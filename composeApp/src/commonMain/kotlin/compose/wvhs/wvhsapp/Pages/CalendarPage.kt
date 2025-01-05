@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Pages
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -30,6 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import compose.wvhs.wvhsapp.DataClasses.DecodedEvent
+import compose.wvhs.wvhsapp.DataClasses.FinalCalendar
+import compose.wvhs.wvhsapp.Utils.format24htoAmPm
+import compose.wvhs.wvhsapp.Utils.getAthleticsCalendar
+import compose.wvhs.wvhsapp.Utils.getHumanDate
+import compose.wvhs.wvhsapp.Utils.getSchoolCalendar
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 

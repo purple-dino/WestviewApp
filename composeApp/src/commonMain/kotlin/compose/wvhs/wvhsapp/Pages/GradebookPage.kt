@@ -1,4 +1,4 @@
-package compose.wvhs.wvhsapp
+package compose.wvhs.wvhsapp.Pages
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -51,6 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import compose.wvhs.wvhsapp.DataClasses.ClassInfo
+import compose.wvhs.wvhsapp.ViewModels.StudentSharedViewModel
+import compose.wvhs.wvhsapp.Utils.vibrate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
