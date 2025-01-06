@@ -104,12 +104,14 @@ class StudentVUE(
         val currentBellSchedule = Regex("BellSchedName=\"(.*?)\"").find(classes)?.groups?.get(1)?.value
         studentSharedViewModel.changeBellScheduleType(currentBellSchedule)
 
-        if (currentBellSchedule != "MonFriBell" && currentBellSchedule != "Tues-Thurs Bell" && currentBellSchedule != "Wed Bell") {
+        if (currentBellSchedule != "MonFri Bell" && currentBellSchedule != "Tues-Thurs Bell" && currentBellSchedule != "Wed Bell") {
             studentSharedViewModel.changeBellSchedule(createBellScheduleFromGoogleCalendar(newClassList.values.toList(), studentSharedViewModel = studentSharedViewModel))
         } else {
-            studentSharedViewModel.changeBellSchedule(getSchedule(classList=newClassList.values.toList(), dayOfWeek = listOf("MonFriBell", "Tues-Thurs Bell", "Wed Bell").indexOf(currentBellSchedule), studentSharedViewModel = studentSharedViewModel))
+            studentSharedViewModel.changeBellSchedule(getSchedule(classList=newClassList.values.toList(), dayOfWeek = listOf("MonFri Bell", "Tues-Thurs Bell", "Wed Bell").indexOf(currentBellSchedule), studentSharedViewModel = studentSharedViewModel))
         }
 
+        println(currentBellSchedule)
+        println(getSchedule(classList=newClassList.values.toList(), dayOfWeek = listOf("MonFri Bell", "Tues-Thurs Bell", "Wed Bell").indexOf(currentBellSchedule), studentSharedViewModel = studentSharedViewModel))
         return Classes(newClassList.values.toList())
     }
 

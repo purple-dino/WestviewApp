@@ -60,7 +60,7 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
     var selectedDayPage by mutableStateOf(studentSharedViewModel.currentBellScheduleType)
     val options = listOf("Mon/Fri", "Tue/Thu", "Wed")
     val listState = rememberLazyListState()
-    val listOfDays = listOf("MonFriBell", "Tues-Thurs Bell", "Wed Bell")
+    val listOfDays = listOf("MonFri Bell", "Tues-Thurs Bell", "Wed Bell")
 
     LaunchedEffect(className) {
         if (className != "" && studentSharedViewModel.settings?.getBoolean("useLiveActivities", false)==true) {
