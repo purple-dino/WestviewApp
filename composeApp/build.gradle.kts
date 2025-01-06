@@ -55,6 +55,8 @@ kotlin {
             implementation(libs.kvault)
             implementation(compose.material3)
             implementation(libs.ksoup.lite)
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.no.arg)
         }
         iosMain.dependencies {
             implementation(libs.ktor.ktor.client.darwin)

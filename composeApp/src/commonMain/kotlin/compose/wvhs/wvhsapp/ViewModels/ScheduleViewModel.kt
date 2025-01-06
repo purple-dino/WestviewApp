@@ -39,7 +39,7 @@ class ScheduleViewModel(studentSharedViewModel: StudentSharedViewModel) {
         startUpdating()
 
         // Create the notifications
-        if (schoolSchedule.isNotEmpty()) {
+        if (schoolSchedule.isNotEmpty() && studentSharedViewModel.settings?.getBoolean("useNotifications", false) == true) {
             createNotifications(schoolSchedule)
         }
     }

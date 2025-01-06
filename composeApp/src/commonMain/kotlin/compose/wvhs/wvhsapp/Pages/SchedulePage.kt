@@ -63,7 +63,7 @@ fun SchedulePageFunc(studentSharedViewModel: StudentSharedViewModel, navControll
     val listOfDays = listOf("MonFriBell", "Tues-Thurs Bell", "Wed Bell")
 
     LaunchedEffect(className) {
-        if (className != "") {
+        if (className != "" && studentSharedViewModel.settings?.getBoolean("useLiveActivities", false)==true) {
             startActivity()
         }
 

@@ -116,7 +116,7 @@ class StudentVUE(
     private suspend fun createBellScheduleFromGoogleCalendar(classlist: List<String>, studentSharedViewModel: StudentSharedViewModel): List<ScheduleViewModel.Period>? {
         val client = HttpClient()
         val dateToGet = LocalDate.fromEpochDays(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toEpochDays()).toString() + "T00:00:00-07:00"
-        val bellSchedule = (parseCalendar(withContext(Dispatchers.IO) {client.get(urlString = "https://www.googleapis.com/calendar/v3/calendars/5c71a8e801b662f3862e4283a18c0a5a052121b5fcbff169539c1aaa8b5a8684@group.calendar.google.com/events?key=AIzaSyDeFW5b_wnH-uDLG-RjPsTX6P2iOZHwGBo&timeMin=${dateToGet}&maxResults=${1}&singleEvents=True&orderBy=startTime").bodyAsText() }))
+        val bellSchedule = (parseCalendar(withContext(Dispatchers.IO) {client.get(urlString = "https://www.googleapis.com/calendar/v3/calendars/5c71a8e801b662f3862e4283a18c0a5a052121b5fcbff169539c1aaa8b5a8684@group.calendar.google.com/events?key=AIzaSyDeFW5b_wnH-uDLG-RjPsTX6P2iOZHwGBo&timeMin=${dateToGet}&maxResults=1&singleEvents=True&orderBy=startTime").bodyAsText() }))
         if (bellSchedule.events != emptyList<DecodedEvent>()) {
             val schedule = bellSchedule.events[0].description
             if (schedule != null) {

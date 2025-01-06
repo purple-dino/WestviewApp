@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.liftric.kvault.KVault
+import com.russhwolf.settings.Settings
 import compose.wvhs.wvhsapp.DataClasses.Attendance
 import compose.wvhs.wvhsapp.DataClasses.Classes
 import compose.wvhs.wvhsapp.DataClasses.Gradebook
@@ -22,6 +23,7 @@ class StudentSharedViewModel : ViewModel() {
     var currentBellScheduleType: String? by mutableStateOf(null)
     var attendance: Attendance? by mutableStateOf(null)
     var todaysBellSchedule: List<Period>? by mutableStateOf(null)
+    var settings: Settings? = Settings()
 
     fun changeBellSchedule(newSchedule: List<Period>?) {
         todaysBellSchedule = newSchedule
@@ -60,5 +62,6 @@ class StudentSharedViewModel : ViewModel() {
         attendance = null
         todaysBellSchedule = null
         currentBellScheduleType = null
+        settings = null
     }
 }

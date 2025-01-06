@@ -17,7 +17,8 @@ ktorClientOkhttp = "2.3.12"
 ktorClientSerialization = "2.3.0"
 kvaultVersion = "1.12.0"
 lifecycleViewmodelComposeVersion = "2.8.2"
-material3Version = "1.3.0"
+material3Version = "1.7.0"
+multiplatformSettings = "1.2.0"
 navigationComposeVersion = "2.8.0-alpha10"
 securityCryptoKtx = "1.1.0-alpha06"
 placesVersion = "4.0.0"
@@ -40,6 +41,8 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 kvault = { module = "com.liftric:kvault", version.ref = "kvaultVersion" }
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelComposeVersion" }
 material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3Version" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
+multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 foundation-compose = { module = "org.jetbrains.androidx.foundation:foundation-compose", version.ref = "foundationVersion" }
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "placesVersion" }
