@@ -129,7 +129,7 @@ class StudentVUE(
                     val startTime = LocalTime(parsedPeriod[1].text().split(":")[0].toInt(), parsedPeriod[1].text().split(":")[1].toInt())
                     val endTime = LocalTime(parsedPeriod[2].text().split(":")[0].toInt(), parsedPeriod[2].text().split(":")[1].toInt())
                     if (parsedPeriod[0].text() == "1" || parsedPeriod[0].text() == "2" || parsedPeriod[0].text() == "3" || parsedPeriod[0].text() == "4") {
-                        finalSchedule.add(ScheduleViewModel.Period(name = classlist[parsedPeriod[0].text().toInt()-1], start = startTime, end = endTime))
+                        finalSchedule.add(ScheduleViewModel.Period(name = try{classlist[parsedPeriod[0].text().toInt()-1]}catch (e:Exception){"Period 1"}, start = startTime, end = endTime))
                     } else {
                         finalSchedule.add(ScheduleViewModel.Period(name = parsedPeriod[0].text(), start = startTime, end = endTime))
                     }
